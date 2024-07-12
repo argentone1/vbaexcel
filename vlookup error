@@ -1,0 +1,629 @@
+Here is the full code, I made quick edit to remove commented out code I was using for troubleshooting. Anything printed is for troubleshooting. Commented lines summarizing section may not be updated with changes I made in code.
+
+
+Sub UnitTool()
+
+ 
+
+Dim compileddata As Worksheet
+
+ 
+
+Dim Sheetscount As Integer
+
+ 
+
+Dim test As Variant
+
+ 
+
+Dim test2 As Variant
+
+ 
+
+Dim snapshot As Variant
+
+ 
+
+ 
+
+'unitcount is the last row of the list of units -5 (the number of empty spaces at start of range) in dataformat tab, will need to be updated as unit list changes
+
+ 
+
+Dim Unitcount As Integer
+
+ 
+
+Dim unitcountend As Integer
+
+ 
+
+Dim endofunits
+
+ 
+
+Dim dataformat As Worksheet
+
+ 
+
+'count number of units on dataformat'
+
+ 
+
+endofunits = "End of Units"
+
+ 
+
+Set dataformat = ThisWorkbook.Sheets("dataformat")
+
+ 
+
+Dim filename As String
+
+ 
+
+filename = "C:\Users\Public\Documents\test.txt"
+
+ 
+
+Open filename For Output As #1
+
+ 
+
+unitcountend = CInt(Application.Match("End of Units ", dataformat.range("B1:B1000"), False))
+
+ 
+
+Print #1, "unitcountend: " & unitcountend
+
+ 
+
+Unitcount = CInt(unitcountend) - 6
+
+ 
+
+Print #1, "unitcountend " & unitcountend & " " & "Unitcount= " & Unitcount
+
+ 
+
+'set variables to refer to compiled data and total number of sheets, also create output file for debugging'
+
+ 
+
+Set compileddata = ThisWorkbook.Sheets("compiled data")
+
+ 
+
+Sheetscount = ThisWorkbook.Sheets.Count
+
+ 
+
+'Print #1, "there are this many sheets" & Sheetscount
+
+ 
+
+Dim sheetCount As Integer
+
+    sheetCount = ThisWorkbook.Sheets.Count
+
+   
+
+'For indexcount = 1 To Sheetscount
+
+ 
+
+'Print #1, indexcount & " " & ThisWorkbook.Sheets(indexcount).Name
+
+ 
+
+'Next
+
+
+
+'check to see how many worksheets there are
+
+ 
+
+    Sheetscount = ThisWorkbook.Sheets.Count
+
+ 
+
+    If Sheetscount <= 5 Then
+
+        MsgBox "There are less than 5 sheets, data seems to be missing"
+
+        GoTo Drop
+
+        End If
+
+ 
+
+'check if sheet 4 is compiled data, if yes set unit totals to zero, if no, error out.
+
+ 
+
+    If ThisWorkbook.Sheets(4).Name <> "compiled data" Then
+
+        'Print #1, "compiled data worksheet is missing"
+
+        GoTo Drop
+
+        End If
+
+ 
+
+    If ThisWorkbook.Sheets(4).Name = "compiled data" Then
+
+   
+
+        'copy data format into 3 columns for rural, suburban and urban.  leave headers in place (B4:O5).  will copy unitcount of units from dataformat sheet A6:B(unitcount) to compiled data A6:B(unitcount), F6:G(unitcount), K6:L(unitcount)'
+
+       
+
+            For copycount = 1 To Unitcount
+
+           
+
+                'Print #1, "copycount " & copycount
+
+           
+
+                ruralcopy = "A" & (copycount + 5)
+
+               
+
+                ruralcopy2 = "B" & (copycount + 5)
+
+               
+
+                suburbancopy = "F" & (copycount + 5)
+
+               
+
+                suburbancopy2 = "G" & (copycount + 5)
+
+               
+
+                urbancopy = "K" & (copycount + 5)
+
+               
+
+                urbancopy2 = "L" & (copycount + 5)
+
+               
+
+                'Print #1, "rural " & ruralcopy & " rural2 " & ruralcopy2
+
+               
+
+                compileddata.range(ruralcopy).Value = dataformat.range(ruralcopy).Value
+
+               
+
+                compileddata.range(ruralcopy2).Value = dataformat.range(ruralcopy2).Value
+
+               
+
+                compileddata.range(suburbancopy).Value = dataformat.range(ruralcopy).Value
+
+               
+
+                compileddata.range(suburbancopy2).Value = dataformat.range(ruralcopy2).Value
+
+               
+
+                compileddata.range(urbancopy).Value = dataformat.range(ruralcopy).Value
+
+               
+
+                compileddata.range(urbancopy2).Value = dataformat.range(ruralcopy2).Value
+
+               
+
+           
+
+           
+
+            Next
+
+   
+
+        'Print #1, "compiled data exists"
+
+        'ThisWorkbook.Sheets(4).Cells.Clear no longer clearing sheet
+
+        'ThisWorkbook.Sheets(3).Range(ThisWorkbook.Sheets(3).Cells(1, 1), ThisWorkbook.Sheets(3).Cells(Unitcount, 5)).Copy _
+
+        'Destination:=ThisWorkbook.Sheets(4).Range("A1")
+
+       
+
+        Dim ruralrange
+
+       
+
+        Dim suburbanrange
+
+       
+
+        Dim urbanrange
+
+       
+
+        ruralrange = "C6:E" & (Unitcount + 5)
+
+       
+
+        suburbanrange = "H6:J" & (Unitcount + 5)
+
+       
+
+        urbanrange = "M6:O" & (Unitcount + 5)
+
+       
+
+        ThisWorkbook.Sheets(4).Cells.range(ruralrange).Value = 0
+
+       
+
+        ThisWorkbook.Sheets(4).Cells.range(suburbanrange).Value = 0
+
+       
+
+        ThisWorkbook.Sheets(4).Cells.range(urbanrange).Value = 0
+
+       
+
+        End If
+
+   
+
+'compile 3 arrays based on type of sheet names with True in K1
+
+    'originally single array named arrINDEX
+
+   
+
+    Dim arrINDEXrural(2048) As String
+
+    Dim arrINDEXsuburban(2048) As String
+
+    Dim arrINDEXurban(2048) As String
+
+   
+
+    Dim arrcountrural As Integer
+
+   
+
+    Dim arrcountsuburban As Integer
+
+   
+
+    Dim arrcounturban As Integer
+
+           
+
+    Dim vlrangevalueunit As String
+
+           
+
+    arrcountrural = 6
+
+   
+
+   
+
+    'Print #1, "sheetcount " & sheetCount
+
+   
+
+    For indexcount = 6 To sheetCount
+
+   
+
+        If ThisWorkbook.Sheets(indexcount).range("K1").Value = True And ThisWorkbook.Sheets(indexcount).range("G1").Value = "Rural" Then
+
+            arrINDEXrural(arrcountrural) = ThisWorkbook.Sheets(indexcount).Name
+
+            'Print #1, "array rural(" & arrcountrural & ") " & arrINDEXrural(arrcountrural)
+
+            arrcountrural = arrcountrural + 1
+
+            End If
+
+         'Print #1, "indexcount " & indexcount
+
+    Next
+
+           
+
+    arrcountsuburban = 6
+
+   
+
+    For indexcount = 6 To sheetCount
+
+   
+
+        If ThisWorkbook.Sheets(indexcount).range("K1").Value = True And ThisWorkbook.Sheets(indexcount).range("G1").Value = "Suburban" Then
+
+            arrINDEXsuburban(arrcountsuburban) = ThisWorkbook.Sheets(indexcount).Name
+
+            'Print #1, "array suburban(" & arrcountsuburban & ") " & arrINDEXsuburban(arrcountsuburban)
+
+            arrcountsuburban = arrcountsuburban + 1
+
+            End If
+
+       
+
+    Next
+
+   
+
+        arrcounturban = 6
+
+   
+
+    For indexcount = 6 To sheetCount
+
+   
+
+        If ThisWorkbook.Sheets(indexcount).range("K1").Value = True And ThisWorkbook.Sheets(indexcount).range("G1").Value = "Urban" Then
+
+            arrINDEXurban(arrcounturban) = ThisWorkbook.Sheets(indexcount).Name
+
+            'Print #1, "array urban(" & arrcounturban & ") " & arrINDEXurban(arrcounturban)
+
+            arrcounturban = arrcounturban + 1
+
+            End If
+
+           
+
+    Next
+
+   
+
+    'Print #1, "done with array creation"
+
+           
+
+'*****add logic to copy data from sheets in all 3 arrays'copy data from sheets in array to compiled data tab, adding each new set of data to compiled data
+
+ 
+
+Dim rangevalue As String
+
+ 
+
+Dim cellrange
+
+ 
+
+Dim lookuprng
+
+ 
+
+Dim arrloop As Integer
+
+ 
+
+Dim sheetname
+
+ 
+
+Dim copyloop As Variant
+
+ 
+
+Dim searchrange
+
+ 
+
+Dim copyvalue
+
+ 
+
+Dim range
+
+ 
+
+Dim unit() As String
+
+ 
+
+ReDim unit((Unitcount + 5))
+
+ 
+
+'create array of units  array is set up to have units in (6) to (unitcount+5) rather than from (1) to (unitcount)
+
+ 
+
+For i = 6 To (Unitcount + 5)
+
+ 
+
+    cellrange = "B" & i
+
+ 
+
+    unit(i) = (ThisWorkbook.Sheets("compiled data").range(cellrange).Value)
+
+   
+
+    Print #1, i & " " & cellrange & " " & unit(i)
+
+ 
+
+Next
+
+ 
+
+'copy Rural flagged sheets to total rural units
+
+ 
+
+arrloop = arrcountrural - 1
+
+ 
+
+    For copyloop = 6 To (Unitcount + 5)
+
+   
+
+        'increment through array of sheets
+
+       
+
+        'Print #1, "entering array loop"
+
+       
+
+            For arrayloop = 6 To arrloop
+
+ 
+
+                'copy buried data from C6 to C Unitcount on each sheet in array, updated to pull unit name from dataformat (B6:B(unitcount+5)) can copy vlookup for unit on dataset and copy that value
+
+               
+
+                    rangevalue = "C" & copyloop
+
+                                        
+
+                    sheetname = arrINDEXrural(arrayloop)
+
+                   
+
+                    Print #1, " copyloop " & copyloop; " rangevalue " & rangevalue & " unit() " & unit(copyloop) & " sheetname " & sheetname
+
+                   
+
+                    'match unit(copyloop) on sheetname, copy unit value for buried to compiled data and add it to total for unit
+
+                   
+
+                        copyrange = "B6:C" & (Unitcount + 5)
+
+                       
+
+                        Print #1, "copyrange " & copyrange
+
+                       
+
+                        Set lookuprng = ThisWorkbook.Worksheets(sheetname).range(copyrange)
+
+                                                
+
+                        On Error Resume Next
+
+ 
+
+                        copyvalue = Application.WorksheetFunction.VLookup(CStr(unit(copyloop)), lookuprng, 2, False)
+
+                       
+
+                            Print #1, "copyvalue " & copyvalue & " lookuprng " & lookuprng
+
+                           
+
+                            If Err.Number <> 0 Then
+
+                                ' An error occurred, so handle it and then clear the error
+
+                                Debug.Print "Error: " & Err.Description
+
+                                Print #1, "Error: " & Err.Description
+
+                                Err.Clear ' Clear the error
+
+                            Else
+
+                                ' No error occurred, so print the result
+
+                                Debug.Print result
+
+                                Print #1, copyvalue
+
+                            End If
+
+                           
+
+                        Print #1, "copyvalue " & copyvalue & " lookuprng " & lookuprng
+
+                   
+
+                    'Print #1, "copyloop " & copyloop & " vlookup return, vlrangevalueunit " & vlrangevalueunit & " sheetname " & sheetname & "  " & test
+
+                   
+
+                    rangevalue = "D" & copyloop
+
+                   
+
+                    sheetname = arrINDEXrural(arrayloop)
+
+                   
+
+                    'On Error Resume Next
+
+           
+
+                    ThisWorkbook.Sheets("compiled data").range(rangevalue).Value = ThisWorkbook.Sheets("compiled data").range(rangevalue).Value + CInt(Application.WorksheetFunction.VLookup(vlrangevalueunit, ThisWorkbook.Sheets(sheetname).range("B6:E1000"), 3, False))
+
+                   
+
+                    If Err.Number <> 0 Then
+
+                   
+
+                        ThisWorkbook.Sheets("compiled data").range(rangevalue).Value = ThisWorkbook.Sheets("compiled data").range(rangevalue).Value + 0
+
+                       
+
+                    End If
+
+                   
+
+                    'Print #1, "Sheet " & sheetname
+
+                   
+
+                'copy buried data from D6 to D Unitcount on each sheet in array
+
+               
+
+                    rangevalue = "E" & copyloop
+
+                   
+
+                    sheetname = arrINDEXrural(arrayloop)
+
+           
+
+                   
+
+                    If Err.Number <> 0 Then
+
+                   
+
+                        ThisWorkbook.Sheets("compiled data").range(rangevalue).Value = ThisWorkbook.Sheets("compiled data").range(rangevalue).Value + 0
+
+                       
+
+                    End If
+
+                   
+
+            Next
+
+       
+
+    Next
+
+   
+
